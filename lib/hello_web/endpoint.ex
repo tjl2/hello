@@ -76,7 +76,8 @@ defmodule HelloWeb.Endpoint do
 
   # Plug.Session - a plug that sets up session management. Note that
   # fetch_session/2 must still be explicitly called before using the session as
-  # this plug just sets up how the session is fetched.
+  # this plug just sets up how the session is fetched. By default, this is done
+  # by the `plug :fetch_session` in router.ex
   plug Plug.Session, @session_options
   plug :introspect
   plug HelloWeb.Router
