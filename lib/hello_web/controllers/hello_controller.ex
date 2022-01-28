@@ -10,6 +10,8 @@ defmodule HelloWeb.HelloController do
   # could define show/2 like this:
   # def show(conn, %{"messenger" => messenger} = params) do ...
   def show(conn, %{"messenger" => messenger}) do
+    # text(conn, "From messenger #{messenger}")
+    # json(conn, %{id: messenger})
     render(conn, "show.html", messenger: messenger)
   end
 end
