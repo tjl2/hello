@@ -1,9 +1,12 @@
 defmodule HelloWeb.PageController do
   use HelloWeb, :controller
 
-  # def index(conn, _params) do
-  #   render(conn, :index)
-  # end
+  def index(conn, _params) do
+    conn
+    |> put_flash(:info, "Welcome to Phoenix, from flash info!")
+    |> put_flash(:error, "Let's pretend we have an error.")
+    |> render(:index)
+  end
 
   # Example to send custom response
   # def index(conn, _params) do
@@ -18,12 +21,12 @@ defmodule HelloWeb.PageController do
   # want to redirect to a fully-qualified path or an external URL, you should
   # use :external instead:
   # redirect(conn, external: "https://elixir-lang.org/")
-  def index(conn, _params) do
-    redirect(conn, to: Routes.page_path(conn, :redirect_test))
-  end
+  # def index(conn, _params) do
+  #   redirect(conn, to: Routes.page_path(conn, :redirect_test))
+  # end
 
-  def redirect_test(conn, _params) do
-    render(conn, :index)
-  end
+  # def redirect_test(conn, _params) do
+  #   render(conn, :index)
+  # end
 
 end
