@@ -12,6 +12,11 @@ defmodule HelloWeb.HelloController do
   def show(conn, %{"messenger" => messenger}) do
     # text(conn, "From messenger #{messenger}")
     # json(conn, %{id: messenger})
+    # Note that assigns can be added to the conn seperately then we could call
+    # render/2 instead of render/3:
+    #  conn
+    #  |> Plug.Conn.assign(:messenger, messenger)
+    #  |> render("show.html")
     render(conn, "show.html", messenger: messenger)
   end
 end
