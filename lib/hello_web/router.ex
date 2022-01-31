@@ -29,6 +29,8 @@ defmodule HelloWeb.Router do
     # end
 
     # resources "/reviews", ReviewController
+
+    resources "/products", ProductController
   end
 
   # scope "/admin", HelloWeb.Admin, as: :admin do
