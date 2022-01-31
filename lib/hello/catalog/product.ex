@@ -6,7 +6,7 @@ defmodule Hello.Catalog.Product do
     field :description, :string
     field :price, :decimal
     field :title, :string
-    field :view, :integer
+    field :views, :integer
 
     timestamps()
   end
