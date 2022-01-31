@@ -1,12 +1,12 @@
 defmodule HelloWeb.PageController do
   use HelloWeb, :controller
 
-  # def index(conn, _params) do
-  #   conn
-  #   |> put_flash(:info, "Welcome to Phoenix, from flash info!")
-  #   |> put_flash(:error, "Let's pretend we have an error.")
-  #   |> render(:index)
-  # end
+  def index(conn, _params) do
+    conn
+    |> put_flash(:info, "Welcome to Phoenix, from flash info!")
+    |> put_flash(:error, "Let's pretend we have an error.")
+    |> render(:index)
+  end
 
   # Example to send custom response
   # def index(conn, _params) do
@@ -34,8 +34,8 @@ defmodule HelloWeb.PageController do
     render(conn, "show.json", page: page)
   end
 
-  def index(conn, _params) do
-    pages = [%{title: "foo"}, %{title: "bar"}]
-    render(conn, "index.json", pages: pages)
-  end
+  # def index(conn, _params) do
+  #   pages = [%{title: "foo"}, %{title: "bar"}]
+  #   render(conn, "index.json", pages: pages)
+  # end
 end
