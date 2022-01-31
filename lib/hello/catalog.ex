@@ -17,9 +17,7 @@ defmodule Hello.Catalog do
       [%Product{}, ...]
 
   """
-  def list_products do
-    Repo.all(Product)
-  end
+  def list_products, do: Repo.all(Product)
 
   @doc """
   Gets a single product.
@@ -85,9 +83,7 @@ defmodule Hello.Catalog do
       {:error, %Ecto.Changeset{}}
 
   """
-  def delete_product(%Product{} = product) do
-    Repo.delete(product)
-  end
+  def delete_product(%Product{} = product), do: Repo.delete(product)
 
   @doc """
   Returns an `%Ecto.Changeset{}` for tracking product changes.
