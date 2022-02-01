@@ -97,4 +97,20 @@ defmodule Hello.Catalog do
   def change_product(%Product{} = product, attrs \\ %{}) do
     Product.changeset(product, attrs)
   end
+
+  def inc_page_views(%Product{} = product) do
+    # We build a query (`from…`) for fetching the current product given its ID
+    # which we pass to Repo.update_all. Ecto's Repo.update_all allows us to
+    # perform batch updates against the database, and is perfect for atomically
+    # updating values, such as incrementing our views count. The result of the
+    # repo operation returns the number of updated records, along with the
+    # selected schema values specified by the select option. When we receive the
+    # new product views, we use put_in(product.views, views) to place the new
+    # view count within the product struct
+    {1, [%Product{views: views}]} =
+      from(p in Product, where: p.id == ^product.id, select: [:views])
+      |> Repo.update_all(inc: [views: 1])
+
+    put_in(product.views, views)
+  end
 end
