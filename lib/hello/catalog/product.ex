@@ -1,6 +1,7 @@
 defmodule Hello.Catalog.Product do
   use Ecto.Schema
   import Ecto.Changeset
+  alias Hello.Catalog.Category
 
   schema "products" do
     field :description, :string
