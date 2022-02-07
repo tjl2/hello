@@ -55,6 +55,11 @@ defmodule HelloWeb.Router do
     # resources "/reviews", ReviewController
 
     resources "/products", ProductController
+
+    resources "/cart_items", CartItemController, only: [:create, :delete]
+
+    get "/cart", CartController, :show
+    put "/cart", CartController, :update
   end
 
   # scope "/admin", HelloWeb.Admin, as: :admin do

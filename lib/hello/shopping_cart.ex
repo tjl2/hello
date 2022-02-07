@@ -5,8 +5,8 @@ defmodule Hello.ShoppingCart do
 
   import Ecto.Query, warn: false
   alias Hello.Repo
-
-  alias Hello.ShoppingCart.Cart
+  alias Hello.Catalog
+  alias Hello.ShoppingCart.{Cart,CartItem}
 
   @doc """
   Returns the list of carts.
@@ -38,21 +38,74 @@ defmodule Hello.ShoppingCart do
   def get_cart!(id), do: Repo.get!(Cart, id)
 
   @doc """
-  Creates a cart.
+  Fetches a cart and joins the cart items, and their products so that we have
+  the full cart populated with all preloaded data
+  """
+  def get_cart_by_user_uuid(user_uuid) do
+    Repo.one(
+      from(c in Cart,
+        where: c.user_uuid == ^user_uuid,
+        left_join: i in assoc(c, :items),
+        left_join: p in assoc(i, :product),
+        order_by: [asc: i.inserted_at],
+        preload: [items: {i, product: p}]
+      )
+    )
+  end
 
-  ## Examples
-
-      iex> create_cart(%{field: value})
-      {:ok, %Cart{}}
-
-      iex> create_cart(%{field: bad_value})
-      {:error, %Ecto.Changeset{}}
+  @doc """
+  Accepts a user UUID instead of attributes, which we use to populate the
+  user_uuid field. If the insert is successful, we reload the cart contents by
+  calling a private reload_cart/1 function, which simply calls
+  get_cart_by_user_uuid/1 to refetch data
 
   """
-  def create_cart(attrs \\ %{}) do
-    %Cart{}
-    |> Cart.changeset(attrs)
+  def create_cart(user_uuid) do
+    %Cart{user_uuid: user_uuid}
+    |> Cart.changeset(%{})
     |> Repo.insert()
+    |> case do
+      {:ok, cart} -> {:ok, reload_cart(cart)}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  defp reload_cart(%Cart{} = cart), do: get_cart_by_user_uuid(cart.user_uuid)
+
+  @doc """
+  our new add_item_to_cart/2 function which accepts a cart struct and a product
+  struct from the catalog. We used an upsert operation against our repo to
+  either insert a new cart item into the database, or increase the quantity by
+  one if it already exists in the cart. This is accomplished via the on_conflict
+  and conflict_target options, which tells our repo how to handle an insert
+  conflict
+  """
+  def add_item_to_cart(%Cart{} = cart, %Catalog.Product{} = product) do
+    %CartItem{quantity: 1, price_when_carted: product.price}
+    |> CartItem.changeset(%{})
+    |> Ecto.Changeset.put_assoc(:cart, cart)
+    |> Ecto.Changeset.put_assoc(:product, product)
+    |> Repo.insert(
+      on_conflict: [inc: [quantity: 1]],
+      conflict_target: [:cart_id, :product_id]
+    )
+  end
+
+  @doc """
+  Issue a Repo.delete_all call with a query to delete the cart item in our cart
+  that matches the product ID. Finally, we reload the cart contents by calling
+  reload_cart/1.
+  """
+  def remove_item_from_cart(%Cart{} = cart, product_id) do
+    {1, _} =
+      Repo.delete_all(
+        from(i in CartItem,
+          where: i.cart_id == ^cart.id,
+          where: i.product_id == ^product_id
+        )
+      )
+
+    {:ok, reload_cart(cart)}
   end
 
   @doc """
@@ -196,5 +249,17 @@ defmodule Hello.ShoppingCart do
   """
   def change_cart_item(%CartItem{} = cart_item, attrs \\ %{}) do
     CartItem.changeset(cart_item, attrs)
+  end
+
+  def total_item_price(%CartItem{} = item) do
+    Decimal.mult(item.product.price, item.quantity)
+  end
+
+  def total_cart_price(%Cart{} = cart) do
+    Enum.reduce(cart.items, 0, fn item, acc ->
+      item
+      |> total_item_price()
+      |> Decimal.add(acc)
+    end)
   end
 end
