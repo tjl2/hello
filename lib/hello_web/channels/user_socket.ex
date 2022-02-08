@@ -10,7 +10,7 @@ defmodule HelloWeb.UserSocket do
   # Uncomment the following line to define a "room:*" topic
   # pointing to the `HelloWeb.RoomChannel`:
   #
-  # channel "room:*", HelloWeb.RoomChannel
+  channel "room:*", HelloWeb.RoomChannel
   #
   # To create a channel file, use the mix task:
   #
